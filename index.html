@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>p5.js 포트폴리오</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ink: #0e0d0b;
+      --paper: #f2efe8;
+      --warm: #e8e2d4;
+      --gold: #c9a84c;
+      --red: #c0392b;
+      --dim: #8a8070;
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.055;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+    }
+
+    .banner {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 7px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      opacity: 0;
+      animation: up 0.4s ease forwards 0.05s;
+    }
+    .banner b { color: var(--gold); font-weight: 400; }
+    .banner span { opacity: 0.4; }
+
+    .masthead { padding: 44px 40px 0; }
+
+    .mast-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 4px double var(--ink);
+      padding-bottom: 18px;
+      gap: 20px;
+    }
+
+    .mast-title-block { opacity: 0; animation: up 0.6s ease forwards 0.15s; }
+
+    .mast-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5.5rem, 14vw, 10.5rem);
+      line-height: 0.86;
+      letter-spacing: 0.025em;
+    }
+    h1 .em { color: var(--gold); }
+
+    .mast-right {
+      flex-shrink: 0;
+      text-align: right;
+      opacity: 0;
+      animation: up 0.6s ease forwards 0.25s;
+    }
+
+    .ghost-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 7rem;
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 2px var(--warm);
+      letter-spacing: 0.04em;
+      display: block;
+    }
+
+    .mast-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0 0;
+      opacity: 0;
+      animation: up 0.5s ease forwards 0.35s;
+    }
+
+    .meta-left {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+    }
+
+    .pills { display: flex; gap: 6px; }
+
+    .pill {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border: 1.5px solid currentColor;
+      border-radius: 20px;
+    }
+    .pill-ink { color: var(--ink); }
+    .pill-red { color: var(--red); }
+
+    .stripe {
+      margin: 18px 40px 0;
+      height: 7px;
+      background: repeating-linear-gradient(90deg, var(--ink) 0, var(--ink) 10px, transparent 10px, transparent 15px);
+      opacity: 0;
+      animation: up 0.4s ease forwards 0.42s;
+    }
+
+    .section {
+      padding: 18px 40px 0;
+      opacity: 0;
+      animation: up 0.7s ease forwards 0.5s;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.56rem;
+      letter-spacing: 0.25em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    #projects {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--warm);
+      border: 2px solid var(--ink);
+      overflow: visible;
+      transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+    .card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 7px 7px 0 var(--ink);
+    }
+
+    .preview {
+      aspect-ratio: 16/9;
+      position: relative;
+      overflow: hidden;
+      background: var(--ink);
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .preview iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 600px; height: 338px;
+      border: none;
+      transform-origin: top left;
+      pointer-events: none;
+    }
+
+    /* sample1,4: 400x600 → fit width=300px area, scale so width fills */
+    .scale-portrait iframe {
+      width: 400px;
+      height: 600px;
+      transform: scale(0.75);
+    }
+
+    /* sample2,3: 600x400 → standard scale */
+    .scale-landscape iframe {
+      width: 600px;
+      height: 338px;
+      transform: scale(0.5);
+    }
+
+    .preview-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(14,13,11,0.55));
+      z-index: 1;
+    }
+
+    .watermark {
+      position: absolute;
+      top: 8px; right: 10px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      line-height: 1;
+      color: var(--paper);
+      opacity: 0.12;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .card-foot {
+      padding: 10px 14px 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-left { display: flex; align-items: baseline; gap: 9px; }
+
+    .card-n {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.9rem;
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+
+    .card-title { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.04em; }
+
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.52rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      color: var(--paper);
+    }
+    .tag-static  { background: var(--ink); }
+    .tag-dynamic { background: var(--red); }
+
+    .close-rule {
+      margin: 24px 40px 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      opacity: 0;
+      animation: up 0.5s ease forwards 0.9s;
+    }
+    .close-rule::before, .close-rule::after { content:''; flex:1; height:1px; background:var(--dim); }
+    .close-rule span {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.56rem;
+      letter-spacing: 0.22em;
+      color: var(--dim);
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    footer {
+      padding: 14px 40px 42px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0;
+      animation: up 0.5s ease forwards 1.0s;
+    }
+
+    .foot-sig {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: 0.12em;
+      color: var(--dim);
+    }
+
+    .foot-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+      text-align: right;
+      line-height: 1.9;
+    }
+
+    @keyframes up {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .banner,.masthead,.meta-row,.stripe,.section,.close-rule,footer { padding-left:20px; padding-right:20px; }
+      .stripe { margin-left:20px; margin-right:20px; }
+      h1 { font-size:4.5rem; }
+      .ghost-num { font-size:4.5rem; }
+      #projects { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="banner">
+  <b>P5.JS PORTFOLIO — VOL. I</b>
+  <span>2025 SPRING · VISUAL COMPUTING</span>
+</div>
+
+<header class="masthead">
+  <div class="mast-top">
+    <div class="mast-title-block">
+      <p class="mast-eyebrow">Visual Works Collection</p>
+      <h1>나의<br><span class="em">작품</span><br>모음</h1>
+    </div>
+    <div class="mast-right">
+      <span class="ghost-num">04</span>
+      <p class="mast-sub">Works<br>Curated</p>
+    </div>
+  </div>
+  <div class="meta-row">
+    <p class="meta-left">과제 01 – 04 · p5.js · GitHub Pages</p>
+    <div class="pills">
+      <span class="pill pill-ink">Static</span>
+      <span class="pill pill-red">Dynamic</span>
+    </div>
+  </div>
+</header>
+
+<div class="stripe"></div>
+
+<div class="section">
+  <p class="section-label">— Works Index</p>
+
+  <main id="projects">
+
+    <!-- 과제1: 바다 정적 (400x600) -->
+    <div class="card">
+      <div class="preview scale-portrait">
+        <span class="watermark">01</span>
+        <iframe src="sample1/index.html" loading="lazy"></iframe>
+        <div class="preview-scrim"></div>
+      </div>
+      <div class="card-foot">
+        <div class="card-left">
+          <span class="card-n">01</span>
+          <span class="card-title">바다 — 정적</span>
+        </div>
+        <span class="tag tag-static">Static</span>
+      </div>
+    </div>
+
+    <!-- 과제4: 바다 동적 (400x600) -->
+    <div class="card">
+      <div class="preview scale-portrait">
+        <span class="watermark">04</span>
+        <iframe src="sample4/index.html" loading="lazy"></iframe>
+        <div class="preview-scrim"></div>
+      </div>
+      <div class="card-foot">
+        <div class="card-left">
+          <span class="card-n">04</span>
+          <span class="card-title">바다 — 동적</span>
+        </div>
+        <span class="tag tag-dynamic">Dynamic</span>
+      </div>
+    </div>
+
+    <!-- 과제2: 캐릭터 정적 (600x400) -->
+    <div class="card">
+      <div class="preview scale-landscape">
+        <span class="watermark">02</span>
+        <iframe src="sample2/index.html" loading="lazy"></iframe>
+        <div class="preview-scrim"></div>
+      </div>
+      <div class="card-foot">
+        <div class="card-left">
+          <span class="card-n">02</span>
+          <span class="card-title">캐릭터 — 정적</span>
+        </div>
+        <span class="tag tag-static">Static</span>
+      </div>
+    </div>
+
+    <!-- 과제3: 캐릭터 동적 (600x400) -->
+    <div class="card">
+      <div class="preview scale-landscape">
+        <span class="watermark">03</span>
+        <iframe src="sample3/index.html" loading="lazy"></iframe>
+        <div class="preview-scrim"></div>
+      </div>
+      <div class="card-foot">
+        <div class="card-left">
+          <span class="card-n">03</span>
+          <span class="card-title">캐릭터 — 동적</span>
+        </div>
+        <span class="tag tag-dynamic">Dynamic</span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="close-rule"><span>End of Collection · Vol. I</span></div>
+
+<footer>
+  <span class="foot-sig">P5.JS WORKS</span>
+  <div class="foot-meta">
+    GitHub Pages Deployment<br>
+    2025 봄학기 제출
+  </div>
+</footer>
+
+</body>
+</html>
