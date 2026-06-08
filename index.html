@@ -190,24 +190,9 @@
     .preview iframe {
       position: absolute;
       top: 0; left: 0;
-      width: 600px; height: 338px;
       border: none;
       transform-origin: top left;
       pointer-events: none;
-    }
-
-    /* sample1,4: 400x600 → fit width=300px area, scale so width fills */
-    .scale-portrait iframe {
-      width: 400px;
-      height: 600px;
-      transform: scale(0.75);
-    }
-
-    /* sample2,3: 600x400 → standard scale */
-    .scale-landscape iframe {
-      width: 600px;
-      height: 338px;
-      transform: scale(0.5);
     }
 
     .preview-scrim {
@@ -426,5 +411,28 @@
   </div>
 </footer>
 
+<script>
+  function fitIframes() {
+    document.querySelectorAll('.preview').forEach(function(preview) {
+      var iframe = preview.querySelector('iframe');
+      if (!iframe) return;
+      var isPortrait = preview.classList.contains('scale-portrait');
+      var srcW = isPortrait ? 400 : 600;
+      var srcH = isPortrait ? 600 : 400;
+      var boxW = preview.offsetWidth;
+      var boxH = preview.offsetHeight;
+      var scale = Math.max(boxW / srcW, boxH / srcH);
+      iframe.style.width  = srcW + 'px';
+      iframe.style.height = srcH + 'px';
+      iframe.style.transform = 'scale(' + scale + ')';
+      var scaledW = srcW * scale;
+      var scaledH = srcH * scale;
+      iframe.style.left = ((boxW - scaledW) / 2) + 'px';
+      iframe.style.top  = ((boxH - scaledH) / 2) + 'px';
+    });
+  }
+  window.addEventListener('load', fitIframes);
+  window.addEventListener('resize', fitIframes);
+</script>
 </body>
 </html>
